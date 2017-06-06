@@ -20,21 +20,13 @@ class FloorDetection(APIView):
 
 	def post(self,request,format=None):
 		data = request.data
-		image_name = data['name']
 		image_str = data['image']
 		img_bytes = base64.b64decode(image_str)
-
-
 		s = time.time()
 		c = zerorpc.Client()
 		c.connect("tcp://127.0.0.1:4242")
 		rst = c.run_inference_on_image(img_bytes)
-
-		# c.save_image(img_bytes)
 		print(time.time() - s, 'segs')
-
-		# rst = c.run_inference_on_image(img_serialized)
-
 		return  Response(rst,status=status.HTTP_200_OK)
 
 class ObjectDetection(APIView):
