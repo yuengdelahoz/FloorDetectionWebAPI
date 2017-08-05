@@ -6,6 +6,7 @@ import cv2
 import base64
 import zerorpc
 import pickle
+import sys
 
 class NeuralNetRPC(object):
 	def __init__(self):
@@ -50,23 +51,31 @@ class NeuralNetRPC(object):
 				supix = supix + 1
 		return origImg
 
+	
+
 	def run_inference_on_image(self,img_bytes):
-		img = np.asarray(bytearray(img_bytes), dtype="uint8")
-		input_image = cv2.imdecode(img, cv2.IMREAD_COLOR)
+		session_conf = tf.ConfigProto(device_count={'CPU' : 1, 'GPU' : 0},
+		allow_soft_placement=True,
+		log_device_placement=False)
+		# img = np.asarray(bytearray(img_bytes), dtype="uint8")
+		# input_image = cv2.imdecode(img, cv2.IMREAD_COLOR)
 		print('running inference on image')
+		input_image = pickle.loads(img_bytes)
 		image = np.array(input_image,ndmin=4)
+		
 		# for op in g.get_operations():
 			# print(op.name)
 		x = self.g.get_tensor_by_name("prefix/input_images:0")
 		keep_prob = self.g.get_tensor_by_name("prefix/keep_prob:0")
 		output= self.g.get_tensor_by_name("prefix/superpixels:0")
-		with tf.Session(graph=self.g) as sess:
+		with tf.Session(graph=self.g, config=session_conf) as sess:
 			result = sess.run(output,feed_dict={x:image,keep_prob:1.0})
 			paintedImg = self.paintOrig(result.ravel(),input_image)
-			encoded = cv2.imencode(".jpg",paintedImg)[1]
-			str_image = base64.b64encode(encoded)
-			# cv2.imwrite('out_image.jpg',paintedImg)
-		return str_image
+			# encoded = cv2.imencode(".jpg",paintedImg)[1]
+			# str_image = base64.b64encode(encoded)
+			cv2.imwrite('out_image.jpg',paintedImg)
+		print('Done')
+		# return str_image
 
 	def run_string(self, string):
 		print(string)
@@ -78,7 +87,8 @@ class NeuralNetRPC(object):
 		 
 
 if __name__ == "__main__":
+	port = sys.argv[1]
 	server = NeuralNetRPC()
 	s = zerorpc.Server(server)
-	s.bind("tcp://127.0.0.1:4242")
+	s.bind("tcp://127.0.0.1:"+port)
 	s.run()
