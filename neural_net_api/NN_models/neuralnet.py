@@ -25,8 +25,6 @@ class NeuralNet(object):
 	def __init__(self,model):
 		# print('Starting Neural Net')
 		self.graph = self.load_graph(model)
-		xf = self.graph.get_tensor_by_name("fallprevention/input_images:0")
-		print(xf)
 
 	def load_graph(self,model):
 		# We load the protobuf file from the disk and parse it to retrieve the 
@@ -42,8 +40,7 @@ class NeuralNet(object):
 			graph_def = tf.GraphDef()
 			graph_def.ParseFromString(f.read())
 
-		# Then, we can use again a convenient built-in function to import a graph_def into the 
-		# current default Graph
+		# Load and return graph
 		with tf.Graph().as_default() as g:
 			tf.import_graph_def(
 				graph_def, 
