@@ -34,20 +34,23 @@ class NeuralNet(object):
 			# print("Loading graph from memory")
 			return graph
 
-		graphdef_path = NeuralNet.model_path.get(model,None)
-		# print("Loading graph from disk")
-		with tf.gfile.GFile(graphdef_path, "rb") as f:
-			graph_def = tf.GraphDef()
-			graph_def.ParseFromString(f.read())
+		try:
+			graphdef_path = NeuralNet.model_path.get(model,None)
+			# print("Loading graph from disk")
+			with tf.gfile.GFile(graphdef_path, "rb") as f:
+				graph_def = tf.GraphDef()
+				graph_def.ParseFromString(f.read())
 
-		# Load and return graph
-		with tf.Graph().as_default() as g:
-			tf.import_graph_def(
-				graph_def, 
-				name ='fallprevention'
-			)
-			NeuralNet.model_graph.update({model:g})
-			return g
+			# Load and return graph
+			with tf.Graph().as_default() as g:
+				tf.import_graph_def(
+					graph_def, 
+					name ='fallprevention'
+				)
+				NeuralNet.model_graph.update({model:g})
+				return g
+		except:
+			print('Graph could not be loaded from disk')
 
 	def run_inference_on_image(self,input_image):
 		image = (input_image-128)/128
