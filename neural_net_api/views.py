@@ -16,12 +16,20 @@ class FallPrevention(APIView):
 		data = request.data
 		try:
 			b64_image = data.get('image',None)
-			model = data.get('model',None)
-			print(model)
+			start_time = data.get('start_time',None)
+			filename = data.get('filename',None)
+			models = data.get('models',None)
 			input_image = utils.decode_string_image(b64_image)
-			result = net(model).run_inference_on_image(input_image)
+
+			tmp = ''
+			for model in models:
+				result,runtime = net(model).run_inference_on_image(input_image)
+				input_image = utils.process_result(result,model,input_image)
+				tmp = tmp + model + ','+str(runtime)+','
+			line = str(start_time) + ',' + tmp
+			utils.log_data(filename,line)
 			return  Response({'result':result},status=status.HTTP_200_OK)
 		except:
-			# traceback.print_exc(file=sys.stdout)
+			traceback.print_exc(file=sys.stdout)
 			return  Response({'result':[[1,2,3,4,5]]},status=status.HTTP_200_OK)
 

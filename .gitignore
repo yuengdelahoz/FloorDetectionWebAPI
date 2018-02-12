@@ -3,3 +3,4 @@
 **/*.sqlite*
 **/*.swp
 **/*.pb
+**/execution_times

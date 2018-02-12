@@ -53,18 +53,16 @@ class NeuralNet(object):
 			print('Graph could not be loaded from disk')
 
 	def run_inference_on_image(self,input_image):
+		start_time = time.time()
 		image = (input_image-128)/128
 		image = np.array(image,ndmin=4)
-		floorini = time.time()
 
 		with tf.Session(graph=self.graph) as sess:
 			xf = self.graph.get_tensor_by_name("fallprevention/input_images:0")
 			keep_probf = self.graph.get_tensor_by_name("fallprevention/keep_prob:0")
 			outputf = self.graph.get_tensor_by_name("fallprevention/superpixels:0")
 			result = sess.run(outputf,feed_dict={xf:image,keep_probf:1.0})
-			floorend = time.time()
-			print('time',(floorend - floorini),result.shape)
-			floorini = time.time()
-		return result
+			end_time = time.time()
+		return result,int(round((end_time-start_time)*1000))
 
 
