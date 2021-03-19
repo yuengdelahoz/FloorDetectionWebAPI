@@ -4,7 +4,7 @@ certifi==2018.1.18
 chardet==3.0.4
 decorator==4.2.1
 Django==2.0.2
-djangorestframework==3.7.7
+djangorestframework==3.11.2
 future==0.16.0
 gevent==1.3a1
 greenlet==0.4.13
